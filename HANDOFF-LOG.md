@@ -114,3 +114,14 @@
   v0 从 `00-从这里开始.md` → `01-任务清单.md` 批次 0 起步，先交 `client/adapter/probe.js` 实测，再 A/B/C/D/E。
 - 备注：本次只做「文件名与引用」的交付面整理，**契约、生成物、本地服务、回归脚本一个字未改**；
   历史 sha `41345ab0bc` 是 R5 全量首提交，其后均为日志 / 契约索引 / 变更清单 / 重命名这类同步小提交。
+
+### 2026-11-09 18:15 ｜ 统筹 Agent ｜ 仓库转公开
+- 已完成：按操作人指示 `gh repo edit --visibility public`，`wzzwzzwzz17/hanhai-v0ai-handoff` 由 `PRIVATE` → **`PUBLIC`**；
+  同步修订 `handoff/to-v0ai/README.md`、`handoff/to-v0ai/AGENTS.md`、`handoff/STATUS.md`（6 处）、`handoff/发送说明.md`（5 处）、`02-合规待办.md`（改写为「公开发布登记」）。
+- 未完成：原作**书面授权留档**（「同意使用」与「同意公开分发源码」是两个范围，后者建议补一句明确许可）。
+- 校验：`gh repo view` → `visibility=PUBLIC` / `isPrivate=false`；匿名 `raw.githubusercontent.com/.../README.md` **HTTP 200**；
+  仓库仍 32 文件，未新增任何含密钥/口令/玩家数据的文件；包内口令字面量扫描仍 **0 命中**。
+- 下一步：把 `https://github.com/wzzwzzwzz17/hanhai-v0ai-handoff` 直接给 v0，无需授权即可克隆；
+  v0 仍从 `00-从这里开始.md` → `01-任务清单.md` 批次 0 起步。
+- 备注：公开后任何人可读，**此仓库此后不得再接收口令、密钥、玩家数据或未授权素材**；
+  已可能被搜索引擎/镜像缓存，将来收回可见性也不等于消除副本；上线闸门仍 `NOT CLEARED`，公开仓库 ≠ 上线。
