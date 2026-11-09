@@ -10,7 +10,7 @@
 | C1 | **契约先行**：任何分包任务开工前，先读本目录全部文件。契约未定义的字段，一律先提 `CHANGE-REQUEST`，不得先写后报。 |
 | C2 | **只读引用**：v0ai 与豆包对本目录只有读权限。修改权归统筹 Agent，且必须递增 `CONTRACT_VERSION`。 |
 | C3 | **名字即协议**：字段名、大小写、枚举值逐字一致。`character_id` ≠ `charId` ≠ `characterId`。 |
-| C4 | **服务端权威**：客户端不得提交任何数值字段（体力/好感/属性/时间）。契约里标 `readonly@client` 的字段，前端只展示。 |
+| C4 | **服务端权威**：客户端不得提交任何数值字段（体力/好感/属性/金钱/物品数量/点数/时间）。契约里标 `readonly@client` 的字段，前端只展示；**0.2.0** `origin`/`roll`/`money`/`inventory`/`favor_view` 全部由服务端生成并只经 `authoritative` 下发。 |
 | C5 | **版本化**：所有响应带 `contract_version`。前端启动时校验，不一致则拒绝渲染并提示升级。 |
 | C6 | **变更流程**：发现契约缺口 → 写在 `handoff/CHANGE-REQUEST.md` → 统筹 Agent 评估 → 更新契约 + 版本号 + 广播给全部 agent → 各 agent 对齐后再继续。禁止私自兼容层。 |
 
@@ -27,11 +27,12 @@
 ## 当前版本
 
 ```
-CONTRACT_VERSION = 0.1.0
+CONTRACT_VERSION = 0.2.0
 FROZEN_AT       = 2026-11-09
 STATUS          = FROZEN（可读取，变更需走 C6）
 OWNER           = 统筹 Agent
-REVISION        = R4（2026-11-09，前端边界裁定：原版 UI 约 90% + 新增联机组件层；wire 字段零改动）
+REVISION        = R5（2026-11-09，9 条《关键设计点》裁定落地为 wire 升版）
+CHANGES         = docs/0.2.0-变更清单.md
 ```
 
 ### 修订记录
@@ -45,7 +46,14 @@ REVISION        = R4（2026-11-09，前端边界裁定：原版 UI 约 90% + 新
 
 | **R4** | 2026-11-09 | 操作人裁定「沿用原版 90% UI，但也要新增不少联机版特有的前端，这就是 v0 工作的一部分」 | 修订 P3 与「给 v0ai 一句话」；`ui-states.md` 放宽 F5、新增 F9/U14；v0 任务卡解除「不写组件」禁令并加批次 D；两个交付包的契约副本同步 | **否**。端点、字段、枚举、帧结构、文案 key、状态机均未动，`CONTRACT_VERSION` 保持 `0.1.0` |
 
+| **R5** | 2026-11-09 | **操作人裁定「都按建议做，记得更新 v0」**：9 条《关键设计点》全部采纳 —— 随机出身/点数、服务端数值、在线推进、共同演出、玩家交互、审核查询、联机组件 | **wire 升 `0.2.0`**：`types.ts` 收窄 `CreateCharacterRequest` 并新增 `OriginRoll`/`ItemStack`/`FavorView`/`NpcProxy`/`SceneGroup`/`Speaker`/`PlayerMessage`/`SceneSlice`/`Interaction*`/`SanctionList`；`api-v0.md` 12→18 端点、`StreamFrame` +3 帧、`409` 收窄；`schema.sql` +7 表；`events.md` §4 重写为合流演出组 + 在线 tick、§9 AC-01 重写并补 AC-06/07/08；`ui-states.md` 加 U15/U16；两个交付包契约副本、`generated/*.js`、本地服务、回归脚本、v0 私人仓库全部同步 | **是**。端点、字段、枚举、帧结构、文案 key 均有增删改，`CONTRACT_VERSION` 由 `0.1.0` → **`0.2.0`**。**禁止 0.1.0 兼容层** |
+
 > 判据：**只有 wire 变化才递增 `CONTRACT_VERSION`**（新增/重命名/删除字段、改错误码、改帧结构）。视图策略、素材基座与部署流程属项目约束，走修订记录，不惊动类型系统。
+> R5 是 R1–R4 之后**第一次真正的 wire 升版**；三方必须重新对齐字段名，不得沿用旧包里的 `0.1.0` 形状。
+>
+> **R5 追加（17:30）**：《其他关键设计点》3 条并入本轮 —— 第 1/2 条落成 **P6 可扩展性** / **P7 中断留痕**（非 wire）；
+> 第 3 条「大世界天道」站长工作台落成 **7 个管理端端点（19–25）** + `AdminCommand` / `ReviewDecision` 枚举 +
+> `admin_action_log` 表 + `ui-states.md` F10/U17 + v0 批次 E。**端点总数 25**。口令只存本地配置，不进任何交付包或仓库。
 
 ### 项目级铁律（非 wire 契约，但三方必须知道）
 
@@ -55,7 +63,9 @@ REVISION        = R4（2026-11-09，前端边界裁定：原版 UI 约 90% + 新
 | P2 | **授权后上线**：用户 2026-11-09 声明已征得原作者同意，但**书面授权留档、成人内容清理、年龄 ≥18、隐私政策与用户协议尚未完成**，`handoff/DEPLOY-GATE.md` 仍 `NOT CLEARED` → 仍禁止部署、发布、生成公开链接或邀请外部测试；本地开发与本机演示不受限。R2 起直接使用原作者前端代码，授权是**代码使用前提**。见 `02-合规待办.md` §0。 |
 | **P3** | **原版 UI 为主体（约 90%）**：`char_card_1-main/`（3109 文件 / 906MB）仍是**唯一只读基座，一字不改**；`client/` 覆盖层按 `client/<path> → char_card_1-main/<path> → 404` 回落，`?raw=1` 可跳过覆盖层。**不重写原版页面/组件/样式、不迁框架**；联机版特有的新前端以「组件层」新增，只能落在 `client/adapter/ui/`，原生 JS、局部样式、零构建。见 `ui-states.md` F9、`04-前端沿用方案.md`。 |
 | **P4** | **整夹投递**：两个交付包 `handoff/to-v0ai/`、`handoff/to-doubao/` 各自**自包含**（契约全文 + 原版参考源码 + 任务清单 + 回收清单），可整个文件夹直接发送；根目录 `AGENTS.md` 是收到整个项目时的统一入口。外部 agent 读不到本机磁盘，**不得引用包外路径**。见 `handoff/发送说明.md`。 |
-| **P5** | **基线可核对**：`tools/BASELINE.json` 记录 3109 个原版文件的 size/mtime 与关键源码 sha256；`tools/check_contract.py` 每次校验，`tools/verify_local.py` 跑 25 项运行时回归。`client/index.html` 只允许 4 行微调 + 1 行 boot 注入，且必须登记 `client/patches/`。 |
+| **P5** | **基线可核对**：`tools/BASELINE.json` 记录 3109 个原版文件的 size/mtime 与关键源码 sha256；`tools/check_contract.py` 每次校验（含 `0.2.0` 版本号、25 端点、61+12 文案 key 与组件白名单），`tools/verify_local.py` 跑 **45 项**运行时回归（R5 / `0.2.0`：25 端点、SSE 合流帧、天道鉴权、在线 tick）。`client/index.html` 只允许 4 行微调 + 1 行 boot 注入，且必须登记 `client/patches/`。 |
+| **P6** | **可扩展性（《其他关键设计点》第 1 条）**：后期会新增不少需要前端的新系统 → 一律**只加不改**：新系统独占目录（玩家端 `client/adapter/ui/<system>/`、管理端如 `client/tiandao/`），经注册表挂载、可独立卸载；端点按命名空间分组（`/api/<system>/*`）、文案按 `I18N_KEYS_<SYSTEM>` 分表；**禁止改已定稿字段名**，改字段走 C6 升版；原版 3109 文件永远只读。见 `ui-states.md` U18。 |
+| **P7** | **中断留痕（《其他关键设计点》第 2 条）**：任何 agent 每批结束或中断前，必须在 `handoff/HANDOFF-LOG.md` 追加一行快照（当前批次 / 已完成文件 / 未完成 / 校验结果 / 下一步）；只追加、不改他人条目。新 agent 接手先读最新快照 + `STATUS.md` + 包内 `00-从这里开始.md`。三个包各有一份副本。见 `ui-states.md` U19。 |
 
 ## 依据
 
@@ -64,6 +74,6 @@ REVISION        = R4（2026-11-09，前端边界裁定：原版 UI 约 90% + 新
 
 ## 给各 agent 的一句话
 
-- **v0ai**（R4 修订）：写 `client/adapter/` 下 6 个原生 JS 适配层 + `probe.js`，**并新增联机版特有前端组件于 `client/adapter/ui/`**（沿用约 90% 原版 UI，不重写原版页面/组件）。完整原版 `char_card_1-main/**` 一字不改（仅给一行 boot 注入指令）。从 `handoff/to-v0ai/00-从这里开始.md` 读起，组件范围见 `R4-需求增补-待裁定.md` 与 `01-任务清单.md` 批次 D。
-- **豆包**：按 `types.ts` / `schema.sql` / `api-v0.md` 写繁琐但机械的代码（枚举表、DTO 样板、mock 数据、迁移脚本、单测用例、文案表），落在指定文件里，不写业务逻辑。
+- **v0ai**（R5 修订）：写 `client/adapter/` 下 6 个原生 JS 适配层 + `probe.js`（**25 端点** + `scene/message/presence` 帧），**并新增 9 个联机版特有组件于 `client/adapter/ui/`**（沿用约 90% 原版 UI，不重写原版页面/组件），**再于 `client/tiandao/` 独立实现大世界天道工作台（批次 E）**。`storageService` 覆盖为只读代理 [U15]。完整原版 `char_card_1-main/**` 一字不改（仅给一行 boot 注入指令）。从 `handoff/to-v0ai/00-从这里开始.md` 读起，字段以 `0.2.0` 为准，批次 D/E 见 `01-任务清单.md`，变更全表见 `docs/0.2.0-变更清单.md`。
+- **豆包**：按 `types.ts` / `schema.sql` / `api-v0.md` 写繁琐但机械的代码（**21 组**枚举表、**61+12 个**文案 key、**25 端点** mock、迁移脚本、AC-01~11 用例、文案表），落在指定文件里，不写业务逻辑。
 - **统筹 Agent**：`server/` 全栈 + 契约维护 + 集成验收 + 冲突仲裁。

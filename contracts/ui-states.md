@@ -1,4 +1,4 @@
-# 前端视图状态契约 v0.1.0 · FROZEN ｜ 修订 R3
+# 前端视图状态契约 v0.2.0 · FROZEN ｜ 修订 R5
 
 > **R2（2026-11-09）**：用户指令「**直接沿用 git 项目仓库里的前端改造，不要自己做前端**」，
 > 整体作废「React + Vite 从零造 8 个页面」的设计，改为「上游前端为唯一 UI 基座 + 原生 JS 适配胶水」。
@@ -6,26 +6,33 @@
 > **R3（2026-11-09）**：用户提供**完整仓库** `char_card_1-main/`（3109 文件 / 906MB，含全部图片 / BGM / 立绘 / 3D），
 > 并声明已征得原作者同意，要求「**100% 使用原版素材 + 优化微调 + 整夹投递**」。
 > 本修订把「文本副本」升级为「**完整原版只读基座 + 极小覆盖层**」，新增 F6–F8、U13；
-> 本地服务 `local/server.mjs` 已按此跑通（25/25 回归）。
+> 本地服务 `local/server.mjs` 已按此跑通（R5 / `0.2.0` 45/45 回归）。
 >
 > **保留**：§3 主界面状态机、§4 四必显要素、§5 关键交互约束、§6 桌面/手机响应式验收（R1 成果），
 > U1/U2/U4/U5/U8/U10 规则不变。
-> **wire 零改动**：路由、`I18N_KEYS`、字段名、状态机名一律不变，`CONTRACT_VERSION` 仍为 `0.1.0`；
-> `types.ts` / `api-v0.md` / `schema.sql` / `events.md` 无需修改。
+> **R5（2026-11-09，wire 升版 0.2.0）**：操作人裁定「都按建议做」，9 条《关键设计点》全部落地。
+> `CONTRACT_VERSION = 0.2.0`；端点 12 → **25**（含 7 个管理端）、`I18N_KEYS` 28 → **61**、管理端 `I18N_KEYS_ADMIN` **12**、枚举 13 → **21** 组；
+> `StreamFrame` 新增 `scene` / `message` / `presence` 帧；`CharacterView` 新增 `origin` / `roll` /
+> `money` / `inventory` / `favor_view` / `proxy_presence`；同场景并发改**合流演出组**，409 收窄。
+> 变更全表见 `docs/0.2.0-变更清单.md`。**禁止写 0.1.0 兼容层**。
+>
+> **保留**：§3 主界面状态机、§4 四必显要素、§5 关键交互约束、§6 桌面/手机响应式验收（R1 成果），
+> U1/U2/U4/U5/U8/U10、F1–F8、F9/U14（R4 前端边界裁定）全部不变。
 
 ## 0. UI 基座（R2 新增 / R3 升级，最高优先级）
 
 | # | 规则 |
 |---|---|
-| **F1** | **完整原版仓库前端是唯一产品 UI**：`char_card_1-main/` 的 `index.html`(342KB)、`start-screen-noST.html`、10 个 HTML、`module/` 67 个 IIFE 模块、12 个 CSS、`ui/`、`scene3d/`，以及 **906MB 原版素材**（`img/` 468M、`assets/` 197M、`bgm/` 141M、`music/`、`scene3d/`）。**不重写、不迁移框架、不重做页面、不重画组件、不替换/压缩/转码任何素材。** |
+| **F1** | **完整原版仓库前端是唯一产品 UI**：`char_card_1-main/` 的 `index.html`(342KB)、`start-screen-noST.html`、10 个 HTML、`module/` 67 个 IIFE 模块、12 个 CSS、`ui/`、`scene3d/`，以及 **906MB 原版素材**（`img/` 468M、`assets/` 197M、`bgm/` 141M、`music/`、`scene3d/`）。**不重写、不迁移框架、不重做页面、不重画组件、不替换/压缩/转码任何素材。** 玩家端以此为准；站长工作台是独立管理端，见 F10。 |
 | **F2** | 禁止引入 React / Vue / Vite / TS 编译 / CDN / UI 组件库 / `node_modules`。适配层与上游同形态：**原生 JS、IIFE、零构建、零外部依赖**。 |
 | **F3** | `char_card_1-main/` **只读、一字不改**（`tools/BASELINE.json` 记录 3109 文件基线，逐次校验）。对上游的唯一改动体现在 `client/index.html` 这份覆盖副本上，且上限为 **4 行微调 + 1 行 boot 注入**，全部登记 `client/patches/`。 |
-| **F4** | `client/` 是**极小覆盖层**，不是前端副本：只放 `index.html`(微调版)、`adapter/`(新增代码)、`patches/`(登记)、说明文件。运行时按 `client/<path> → char_card_1-main/<path> → 404` 回落，`?raw=1` 跳过覆盖层。**禁止把原版文件复制进 `client/`**；`client/src/`、`pages/`、`components/`、`styles/` 一律不存在。 |
+| **F4** | `client/` 是**极小覆盖层**，不是前端副本：只放 `index.html`(微调版)、`adapter/`(玩家端新增代码)、`tiandao/`(R5 独立管理端，见 F10)、`patches/`(登记)、说明文件。运行时按 `client/<path> → char_card_1-main/<path> → 404` 回落，`?raw=1` 跳过覆盖层。**禁止把原版文件复制进 `client/`**；`client/src/`、`pages/`、`components/`、`styles/` 一律不存在。 |
 | **F5** | 四要素**优先复用上游已有状态栏 DOM**；只有确实缺项才允许 `snapshot-bridge.js` 增补最小挂件。**R4**：不替换原版 HUD，但允许联机组件以独立浮层/抽屉挂载（见 F9）。 |
 | **F6** | **R3**：4 行微调由 `tools/apply_tweaks.py` 幂等生成，只含 T1（viewport 允许手机缩放）、T2（引入可一键移除的 `adapter/tweaks.css`）；删除该 link 或 `client/index.html` 即回到 100% 原版。任何新增微调必须登记并复跑脚本。 |
 | **F7** | **R3**：本地服务必须能原样托管完整素材 —— 中文/空格路径解码、完整 mime、`Range`（mp3 拖动 / 16MB glb）、HTML/JS/CSS `no-store`、素材 ETag + 长缓存、缺失资源 **404 而非占位图**。`/game/*` 与 `/api/*` 同源，**无需跨域配置**。 |
 | **F8** | **R3**：两个 agent 交付包各自**自包含整夹**（契约全文 + 原版参考源码 + 任务清单 + 回收清单），可整个文件夹直接发送；根目录 `AGENTS.md` 是收到整个项目时的统一入口。外部 agent 不得引用包外路径。 |
-| **F9** | **R4（已裁定）**：原版 UI 沿用约 90%，联机版特有前端以**新增组件层**实现，路径限定 `client/adapter/ui/`，形态为原生 JS + IIFE + 动态 DOM + 局部 `<style>`；**不重写、不改写、不复制原版 `module/*.js` / HTML / CSS**，原版 3109 文件基线不变。组件清单见 `R4-需求增补-待裁定.md` §3；字段名在契约 `0.2.0` 定稿前一律用适配函数占位，不得写死。 |
+| **F9** | **R4（已裁定）/ R5 定稿**：原版 UI 沿用约 90%，联机版特有前端以**新增组件层**实现，路径限定 `client/adapter/ui/`，形态为原生 JS + IIFE + 动态 DOM + 局部 `<style>`；**不重写、不改写、不复制原版 `module/*.js` / HTML / CSS**，原版 3109 文件基线不变。组件清单见 `01-任务清单.md` 批次 D；**字段已由 `0.2.0` 定稿**，逐字取 `contracts/types.ts`，不再用占位适配函数。 |
+| **F10** | **R5 新增（大世界天道）**：站长工作台是**独立管理端**，路径限定 `client/tiandao/`，允许独立 HTML 页面与局部 CSS（原生 JS + IIFE + 零构建 + 零框架 + 零 CDN）；**不复用玩家会话、不改 `char_card_1-main/` 任何文件**、不进玩家端 `client/adapter/ui/`。管理端与玩家端分离，是「保留可扩展性」的第一例 [P6 / U18]。口令只存本地配置，**不得写进工作台源码或交付包**；登录走 `POST /api/admin/login`，后续带 `X-Admin-Token`。 |
 
 ## 1. 硬约束（适配层必须遵守）
 
@@ -45,10 +52,17 @@
 | **U12** | **R2 新增**：注入脚本必须在上游 60 个 script **全部加载完之后**执行；`boot.js` 首步探测全局对象是否存在，缺失则报错而不是自己造一份。 |
 | **U13** | **R3 新增**：适配层与回归脚本必须能在「覆盖层生效」与「`?raw=1` 100% 原版」两种状态下分别验证；覆盖层缺失或微调丢失视为集成失败。素材请求落在 `/game/*` 同源路径，中文文件名按 `decodeURIComponent` 处理，不得改写素材 URL。 |
 | **U14** | **R4 新增**：联机组件必须可独立卸载（移除 `client/adapter/ui/` 即回到纯适配层），不遮挡原版四要素状态栏；桌面 `1440×900` 主验收、`<768px` 组件改为底部抽屉且零横向溢出；组件内不得出现域名 / IP、不得缓存权威数值，所有数值只从 `authoritative` 快照读取。 |
+| **U15** | **R5 新增（需求 2）**：`window.storageService` 覆盖为**只读代理** —— 原引用保存后可回滚，但 `buildSavePayload()` / `createSave()` / `autoSave()` 不得把 `money` / `inventory` / `stats` / `stamina` / `favor_view` / `roll` 等权威数值写回 IndexedDB；本地存档只放叙事与 UI 偏好。数值一律等 `authoritative` 帧回注，违反即视为篡改 [C4]。 |
+| **U16** | **R5 新增（需求 5/6/7）**：组件接线固定为 `GET /api/scene` + `GET /api/stream/scene` + `POST /api/interactions` + `GET /api/interactions` + `GET /api/sanctions` + `POST /api/character/reroll`；`scene` 帧切换共同演出字幕布局，`delta.speaker` 显示说话人，`message` 帧进交互面板，`presence` 帧刷在场名单。**这四类帧只改展示**；金额/背包/好感只从 `authoritative.snapshot` 读。 |
+| **U17** | **R5 新增（天道工作台，v0 批次 E）**：`client/tiandao/` 工作台至少实现登录、全局总览、人工审核队列与裁定、发布世界事件、角色/NPC 全量查看（数值/背包/金钱/印象）、站长命令面板、操作日志；只调 `19–25` 管理端端点，字段逐字取 `contracts/types.ts`；文案走 `I18N_KEYS_ADMIN`，不硬编码中文；不得把玩家端适配层 `boot.js` 注入工作台。 |
+| **U18** | **R5 新增（可扩展性，P6）**：新增系统一律**只加不改** —— 组件按系统分目录（`client/adapter/ui/<system>/` 或独立管理端）、统一经 `ui/index.js` 注册表挂载、端点按命名空间分组、文案按 `I18N_KEYS_<SYSTEM>` 分表；**禁止修改已定稿字段名**，需要改字段走 C6 升版；禁止把新系统写进原版文件；组件必须可独立卸载。 |
+| **U19** | **R5 新增（中断留痕，P7）**：任何 agent 每批结束或中断前，在 `handoff/HANDOFF-LOG.md` 追加一行快照（当前批次 / 已完成文件 / 未完成 / 校验结果 / 下一步）；只追加、不改他人条目。新 agent 接手先读最新快照 + `STATUS.md` + 包内 `00-从这里开始.md`。 |
 
 ## 2. 页面清单（R3：完整原版真实页面，共 11 个 HTML，非虚构路由）
 
-> 下表是**上游仓库里真实存在的 HTML 文件**，不是待开发的路由。适配层的职责是让这些页面接上服务端，**不新增页面**。
+> 下表是**上游仓库里真实存在的 HTML 文件**，不是待开发的路由。适配层的职责是让这些页面接上服务端，**玩家端不新增页面**；
+> 联机新能力以 `client/adapter/ui/` 组件层挂进现有页面，不走新路由。
+> **R5 例外**：`client/tiandao/` 是独立管理端（站长工作台），允许自己的 HTML 页面，与玩家端路由体系分离 [F10]。
 
 | 上游文件 | 作用 | 主要接口 | MVP 注入 |
 |---|---|---|---|
@@ -70,7 +84,8 @@
 | 行为章程表单 | 复用 `ui/config-modal.js` 的弹窗样式 | `POST /api/proxy/persona` |
 | 旁观 / 申诉 | 复用现有弹窗 | `GET /api/recap`、`POST /api/appeal` |
 
-> **不做**：同场景实时互见、多人同屏 3D、独立移动站 / 移动专属路由 / App 壳；**也不再做** M2–M4 期另起的新页面。
+> **不做**：多人同屏 3D、位置广播、独立移动站 / 移动专属路由 / App 壳；**也不再做** M2–M4 期另起的新页面。
+> **R5 改**：同场景**合流演出字幕 + 在场名单**（`GET /api/scene` / `GET /api/stream/scene`）属于本期范围，不再是「不做」。
 > **不做**：把上游页面改写成组件、把上游 CSS 换成新设计系统、改任何上游文件。
 > **R4 允许做**：新增联机版特有组件（`client/adapter/ui/`），沿用原版视觉风格，不替换原版组件。
 
@@ -80,8 +95,8 @@
 BOOT ──GET /api/health──> READY
 READY ──提交行动──> PENDING(排队序号+预计tick)
 PENDING ──GET /actions/:id = settled──> STREAMING
-STREAMING ──delta*──> STREAMING
-STREAMING ──authoritative──> 覆盖四要素数值（仍 STREAMING）
+STREAMING ──scene | delta* | message | presence──> STREAMING（R5：仅改展示）
+STREAMING ──authoritative──> 覆盖四要素与 money/inventory/favor（仍 STREAMING）
 STREAMING ──done──> IDLE（刷新可选行动）
 PENDING/STREAMING ──error | 断线──> RECONNECT（按 action_id 重连）
 RECONNECT ──410 STREAM_EXPIRED──> 离线纪要弹窗
@@ -101,6 +116,8 @@ OFFLINE ──回归──> 离线纪要弹窗
 
 > **R2**：状态机由 `adapter/sse.js` + `action-bridge.js` 维护；上游 `pipeline.runTurn()` 的流式生命周期与之对齐，
 > 通过既有 `callbacks` 协议回吐 `delta`，不修改上游 `pipeline.js`。
+> **R5**：`scene` / `message` / `presence` 帧不进 `onToken`（避免污染原作叙事解析），由 `sse.js` 分流到组件层；
+> 单人行动没有 `scene` 帧，原帧序 `delta* → authoritative → done` 保持不变。
 
 ## 4. 四必显要素（常驻，不随滚动消失）
 
@@ -114,13 +131,15 @@ OFFLINE ──回归──> 离线纪要弹窗
 > **R2**：上游已有状态栏 DOM（时间 / 体力 / 行动点 / 属性），`snapshot-bridge.js` 把 `authoritative` 快照映射到这些
 > **既有元素**即可；角色状态 `proxy / spectator` 为联机新增，允许补一个最小色点 + 文案 key 挂件。
 > 手机允许压缩成单行 sticky 条，但四个数值**不得折叠、不得移入需点击才可见的抽屉** [U2]。
+> **R5**：`money` / `inventory` / `favor_view` 属服务端权威扩展数值，由 `ui/inventory.js` 在四要素之外单独展示，
+> 同样只在 `authoritative` 帧更新，不进四要素常驻条。
 
 ## 5. 关键交互约束（R1 保留）
 
 - **自由输入**：只发 `text` + `context`（地点、在场 NPC、world_rev），**不发任何数值** [C4]。
   适配层从上游 `messages` / 当前 DOM 抽取 `text`，禁止把上游 `gameData` 里的数值塞进请求体。
 - `UNMAPPABLE_INTENT` 422 → 提示换一种说法，**不消耗回合**。
-- `CONFLICT` 409 → 「有人抢先了」，重新 `GET /api/world`。
+- `CONFLICT` 409 → **R5 收窄**：只表示 `world_rev` 乐观锁失效或唯一资源被占，提示 `error.conflict_mutex` 并重新 `GET /api/world`；**同场景/同 NPC 并发不再 409**，改由合流演出组处理。
 - `RATE_LIMITED` 429 → 显示 `cooldown_sec` 倒计时。
 - 离线纪要**不得一次性倾倒**：`overview` 三句恒显，`proxy_log` 折叠，`has_more` 时按 `cursor` 展开 [12.3]。
 - 软否认按钮挂在 `proxy_log[].soft_deniable === true` 的条目上，调 `POST /api/recap/deny`，**只改叙事不改数值**。
@@ -167,11 +186,15 @@ OFFLINE ──回归──> 离线纪要弹窗
 
 ## 7. 交付格式（v0ai → 统筹，R3 改写为整夹投递）
 
-**投递方式**：整个 `handoff/to-v0ai/` 文件夹一次发送（约 800KB，自包含：契约全文 + 原版参考源码 + 任务卡 + 清单 + 回收说明）。
+**投递方式**：整个 `handoff/to-v0ai/` 文件夹一次发送（约 0.8MB，自包含：契约全文 + 原版参考源码 + 任务卡 + 清单 + 回收说明）；
+也可用 GitHub 私人仓库 `wzzwzzwzz17/hanhai-v0ai-handoff`（PRIVATE / `main`）交付。
 早期「7 条 ≤4KB 短消息、逐轮粘贴」的做法已作废。根目录 `AGENTS.md` 是收到整个项目时的统一入口。
 
-产出**只有 7 个原生 JS 文件 + 1 份注入指令**，落在 `client/adapter/`：
-`probe.js`、`config.js`、`transport.js`、`sse.js`、`action-bridge.js`、`snapshot-bridge.js`、`boot.js`。
+产出 = **批次 0–C 的 7 个原生 JS 适配层** + **批次 D 的 9 个联机组件文件**（`client/adapter/ui/`）
++ **批次 E 的大世界天道工作台**（`client/tiandao/`，独立管理端）+ 1 份注入指令 + 回执。
+适配层：`probe.js`、`config.js`、`transport.js`、`sse.js`、`action-bridge.js`、`snapshot-bridge.js`、`boot.js`。
+**R5**：`transport.js` 覆盖 **25 个端点**（含管理端 19–25），`sse.js` 处理 `scene` / `message` / `presence` / `delta` / `authoritative` / `done`；
+管理端令牌与玩家会话**分仓保存**，绝不互串。
 详见 `04-前端沿用方案.md` §4、`handoff/to-v0ai/00-从这里开始.md` 与 `01-任务清单.md`。
 
 `handoff/V0AI-DELIVERY.md` 固定五段：
