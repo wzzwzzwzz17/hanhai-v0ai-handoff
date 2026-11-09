@@ -1,0 +1,16 @@
+--- char_card_1-main/index.html
++++ client/index.html
+@@ -60,5 +60,5 @@
+ <head>
+     <meta charset="UTF-8">
+-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
++    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+     <title>瀚海归义录</title>
+     <script>
+@@ -108,4 +108,6 @@
+     <script src="module/dialog-panel.js?v=1" defer></script>
+     <script src="module/viewport-corner-sync.js?v=1" defer></script>
++    <!-- 微调层：删掉这一行即回到 100% 原版，见 client/patches/微调清单.md -->
++    <link rel="stylesheet" href="adapter/tweaks.css?v=1">
+ </head>
+ <body>

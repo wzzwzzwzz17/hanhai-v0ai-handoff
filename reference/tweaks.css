@@ -1,0 +1,31 @@
+/* 瀚海归义录 · 微调层（本项目唯一新增的 CSS 文件）
+ * ------------------------------------------------------------------
+ * 原则：不重写 UI、不改原版任何配色/布局/选择器。桌面端几乎零影响，
+ *       只在窄屏补可访问性与触摸体验。
+ * 回退：删掉 client/index.html 里那一行 <link ... tweaks.css?v=1>
+ *       即回到 100% 原版；char_card_1-main/ 从头到尾未被改动。
+ *
+ * 归属：统筹 Agent（不是 v0ai 的适配层产出，v0ai 不要修改本文件）。
+ * 对应登记：client/patches/微调清单.md  条目 T1 / T2
+ */
+
+/* D1 桌面优先：键盘焦点可见（原版未给 focus-visible 样式） */
+:where(button, a, [role="button"], input, select, textarea):focus-visible {
+  outline: 2px solid #c9a961;
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  /* M1 输入框不小于 16px：避免 iOS Safari 聚焦时整页自动放大 */
+  input, textarea, select { font-size: 16px; }
+
+  /* M2 触摸目标不小于 44px */
+  :where(button, [role="button"]) { min-height: 44px; }
+
+  /* M3 禁止系统擅自放大字号，保留 viewport-fit=cover 的安全区 */
+  html { -webkit-text-size-adjust: 100%; }
+  body { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  /* M4 大图不撑出横向滚动条（只限宽，不裁切内容） */
+  img, video, canvas { max-width: 100%; }
+}
