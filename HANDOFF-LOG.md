@@ -186,3 +186,26 @@
   直通模式实测 `installed.action=false`、`_orig` 不存在、HUD「单机 · 原版模型」；行动链路实测 202→SSE→三段 delta→数值变化显示。
 - 下一步：操作人用授权申请.md 向作者提交；豆包做 4 项冗杂任务；M1 后端移植。
 - 备注：verify_local 帧序断言放宽为 delta*→authoritative→done（叙事文本可变，契约本就允许多段 delta）。
+
+### 2026-11-09 21:05 ｜ 统筹 Agent ｜ 真模型接入 + 四类链路实测（本地 L0 替身升级）
+- 背景：操作人提供 3 把 DeepSeek Key，要求实测「系统能跑 / 数值落后台 / 惩罚能跑 / 多角色交互」。
+- 已完成：
+  - **本地替身接入真实模型**（`local/server.mjs`）：`local/llm.config.json`（已 gitignore，绝不入库），
+    3 把 Key 自动轮转，401/402/429/5xx 换下一把，全挂回落模板；`HH_LLM=off` 可硬关（回归固定模板）；
+    模型只写叙事，**数值仍全部由服务端结算**；单人回合与合流演出都走模型（合流按「人名｜台词」逐行输出并解析 speaker）；
+  - **后台模型账本** `state.llm` + `GET/POST /api/_debug/llm`：调用数 / 成功 / 失败 / token / 时延 / 最近错误，只记 key_index 不记 Key；
+  - **惩罚链路补全**：`SanctionLevel` 枚举校验（warn/debuff/execute），debuff 服务端真扣数值（声望-2 体力-20 行动点-1）并写事件，
+    execute 角色转 `spectator`、死亡计数落库；`POST /api/_debug/pending` 可播种待审记录（演示天道裁定）；
+  - **修掉一个真浏览器可玩性 bug**：`action-bridge.lockInput` 恢复了「回合开始瞬间原作流式蒙层留下的临时禁用」，
+    导致第一回合后输入框永久锁死 → 改为解锁后交给原作 `updateFreeActionInputState` 按 `inputEnable` 重新裁定；
+  - **HUD 开局即显示数值**：`boot.refreshFromServer` 拉到角色快照后直接 `snapshotBridge.set(c)`，不再等第一回合；
+  - **三个新验收工具**：`tools/verify_llm.mjs`（真模型 45 项）、`tools/e2e_turn.mjs`（真人双回合浏览器 16 项，弹窗守卫）、
+    `verify_local.py`/`e2e_browser.mjs` 固定 `HH_LLM=off` 保持确定性；
+  - `README-本地版.md` / `启动本地版.cmd` 文案更新为「默认真模型，失败回落模板」。
+- 校验：`check_contract` PASS（3109 基线）/ `check_adapter` 0 提醒 / `smoke` 26/26 / `verify_local` 58/58 /
+  `e2e_browser` 31/31 / **`verify_llm` 45/45** / **`e2e_turn` 16/16**；
+  实测记录：单人回合模型 1.6-3.6s 出叙事，双回合连续可玩（体力 80→74→92），debuff/处决均落 `state.json`，
+  合流帧含「施延年 / 同行弟子」两个 speaker 且只出一次 authoritative。
+- 未完成：Key 与口令只在本机（`local/llm.config.json`、`local/tiandao.config.json`），不入库不外发；
+  M1 真实 PostgreSQL 后端移植、上线闸门（书面授权 / 内容清理 / 强口令 / HTTPS）仍未清。
+- 下一步：操作人在浏览器亲自验收前端；豆包 4 项冗杂任务；M1 移植。
