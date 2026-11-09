@@ -25,7 +25,7 @@
 | 本地回归 `tools/verify_local.py` | ✅ **58/58 PASS**（含 `/game/adapter/*` 10 个资源、`/tiandao/`、boot 注入） |
 | 适配层接线审计 `tools/check_adapter.py` | ✅ **0 失败 0 提醒**（装载清单 / 文案 key / 枚举 / 命名空间 / 25 端点 / 管理端边界） |
 | 无浏览器冒烟 `tools/smoke_adapter.mjs` | ✅ **26/26 PASS**（mock 链路、帧序、只读快照、错误文案） |
-| 真实浏览器验收 `tools/e2e_browser.mjs`（Edge 157 + playwright-core，装于项目外） | ✅ **25/25 PASS**：开场页渲染/主菜单/0 破图；游戏页登录流→boot ready→9 模块→双桥→只读代理→mock 链路 tick=143→帧序；天道页 200+口令表单；0 JS 异常 |
+| 真实浏览器验收 `tools/e2e_browser.mjs`（Edge 157 + playwright-core，装于项目外） | ✅ **31/31 PASS**：开场页/游戏页/天道页/**直通模式**四路径；含登录流→boot ready→9 模块→双桥→只读代理→mock 链路→帧序→直通不接管 LLM |
 | 契约 + 3109 原版基线 `tools/check_contract.py` | ✅ **PASS**（含 wire 一致性） |
 | 上线闸门 | ⛔ **NOT CLEARED**（书面授权留档、内容清理、天道强口令前置等未完） |
 
