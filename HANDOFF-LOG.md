@@ -147,3 +147,21 @@
   打开 `/tiandao/` 用口令登录验审核与世界事件；之后再进 M1 后端移植。
 - 备注：v0 未附回执即中断，回执由统筹代记；契约（wire）一个字节未改，未新增端点/字段/key；
   `client/tiandao/**` 里的额外中文文案属管理端内部文案，契约 12 个 `I18N_KEYS_ADMIN` 全部在用。
+
+### 2026-11-09 19:40 ｜ 统筹 Agent ｜ 真实浏览器验收通过（25/25）+ 天道页 404 修复
+- 已完成：
+  - 装机：`playwright-core` 装在项目外 `C:/myssh_ai/.tools/e2e/`（不进仓库），驱动系统 **Edge 157**（免下载 130MB 浏览器包）；
+  - 新增 `tools/e2e_browser.mjs`：起 8801 临时服务 → 三条真实浏览器路径（开场页 / 游戏页 / 天道工作台）→ 25 项断言 + 截图存证 `handoff/e2e-artifacts/`（已 gitignore）；
+  - **修复真 bug**：`local/server.mjs` 未托管 `/adapter/*`，天道页 `../adapter/config.js` 解析为根路径 404 → `HHAdapter not loaded`；
+    已加 `/adapter/*` → `client/adapter/` 别名（同 `/game/adapter` 同源同文件）；
+  - 文档更新与仓库同步。
+- 校验（关键断言摘录）：
+  - 开场页：HTTP 200、标题正确、主菜单「江湖新篇/重续前缘/武林快报」3/3、0 破图；
+  - 游戏页：登录模态框弹出（产品流程）→ 自动填「验收员」提交 → boot **ready**、9 模块装载（含 ui/index.js）、
+    快照/行动双桥安装、`storageService` 只读代理拦截写入、浏览器内 health/world/session 链路通（tick=143）、
+    mock 帧序 `delta→authoritative→done`、0 JS 异常、0 资源 4xx/5xx；截图确认联机 HUD 渲染；
+  - 天道工作台：HTTP 200、「验明身份」口令表单在、0 JS 异常；
+  - `node --check local/server.mjs` PASS；`python tools/verify_local.py` 58/58 PASS；`check_contract` PASS。
+- 下一步：豆包接 `handoff/to-doubao/02-后续任务清单.md` 的 4 项冗杂任务；M1 后端移植；上线闸门仍 `NOT CLEARED`。
+- 备注：e2e 里 console 有一条 404 属 `/api/character` 无角色探测（契约正常行为，已过滤）；
+  登录框挂起导致此前 state 停在 `waiting-hooks` 不是 bug，是 ensureSession 等人填表。
