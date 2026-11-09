@@ -66,3 +66,35 @@
 - 下一步：从 `handoff/to-v0ai/00-从这里开始.md` 起步；批次 D/E 字段以 `0.2.0` 为准，不再用占位。
 - 备注：私人仓库 `wzzwzzwzz17/hanhai-v0ai-handoff`（PRIVATE / `main`）已就绪；
   git HTTPS 被代理 502 阻断时用 `tools/gh_api_push.py` 走 Git Data API 同步。
+
+### 2026-11-09 18:02 ｜ 统筹 Agent ｜ R5 / `0.2.0` 收口完成（**本轮已交付，可直接接手**）
+- 已完成：
+  - 契约：`contracts/` 6 份 `v0.2.0 / R5`（25 端点 1–25 连续 / 61+12 文案 key / 21 组枚举 / 21 表 / `StreamFrame` 加 `scene`·`message`·`presence` / 合流演出 / 409 收窄 / 在线 tick / 天道 7 端点）；
+  - 生成物：`client/adapter/generated/{mock,i18n-keys,enums}.js`（25 函数 / 61+12 key / 21 组）；
+  - 本地服务：`local/server.mjs`（25 端点、在线 tick、合流、交互、天道鉴权与全局事件、`/tiandao/` 入口预留）；
+  - 脚本：`tools/check_contract.py`（wire 一致性）、`tools/verify_local.py`（45 项）；
+  - 用例：`tests/cases/acceptance.md` AC-01…11、`tests/fixtures/r5.json`；
+  - 总控：`README.md`、`AGENTS.md`、`00-统筹规划.md`（新增迭代 5 / A12–A16）、`02-合规待办.md`（B5 前置）、`03-本地版本架构.md`、`04-前端沿用方案.md`、`briefs/协作协议.md`；
+  - 状态：`handoff/CHANGE-REQUEST.md`（R4-1…9 + R5-1…3 全部标「已采纳」+ R5 收口记录）、`handoff/STATUS.md`（R5 正式状态）、`handoff/发送说明.md`（32 文件 / 排除口令与 `.git/`）、`handoff/DEPLOY-GATE.md`（新增 **B5** 强口令 + 哈希 + HTTPS）；
+  - 需求对照：`docs/关键设计点-R4-需求对照.md`、`docs/其他关键设计点-对照.md`、`docs/0.2.0-变更清单.md`（§8）；
+  - **v0 交付包**：`handoff/to-v0ai/{README.md, AGENTS.md, 00-从这里开始.md, 01-任务清单.md, 02-验收与回收.md, R4-需求增补-待裁定.md}` 全部重写为 R5 正式版；新增 `0.2.0-变更清单.md`、`其他关键设计点-对照.md`、`HANDOFF-LOG.md`；6 份契约副本 + 3 个 generated JS 已逐字同步；
+  - `handoff/to-doubao/` 6 份契约副本 + 变更清单 + 日志已同步；
+  - **GitHub 私人仓库**：`wzzwzzwzz17/hanhai-v0ai-handoff` 提交 `41345ab0bc978c99dfc6dd7f9760ffb375242412`，
+    远端 ref 与本地 sha **完全一致**，`gh repo view` 实测 `visibility=PRIVATE` / `defaultBranch=main`，远端 tree **32 文件**；
+    远端 `contracts/types.ts` = `0.2.0 / R5`、端点表 1–25 连续、`i18nAdmin` 12 key、`01-任务清单.md` 含批次 E、`HANDOFF-LOG.md` 存在。
+- 未完成：**W4 由 v0ai 交付**（7 个适配层 JS + 9 个批次 D 组件 + 7 个批次 E 天道文件 + 回执）；
+  `AC-06…AC-11` 的完整实跑依赖 M1 PostgreSQL / 后端骨架；`client/index.html` 的 T3 boot 注入待 v0 回执后登记；
+  上线闸门仍 `NOT CLEARED`（书面授权留档、内容清理、**B5 天道强口令**）。
+- 校验：
+  - `node --check local/server.mjs` + `generated/*.js` ×3 → **全 PASS**；
+  - `python tools/check_contract.py` → **PASS**（3109 文件 / 898MB 原版基线一致 + wire 一致性 + 两个包契约副本同步）；
+  - `python tools/verify_local.py` → **45/45 PASS**（含合流帧、409 收窄、创角随机、交互、天道鉴权、全局事件、在线 tick）；
+  - `python tools/gh_api_push.py --repo wzzwzzwzz17/hanhai-v0ai-handoff --repo-dir handoff/to-v0ai` → `41345ab0bc` 本地/远端一致；
+  - 口令泄漏扫描：`local/tiandao.config.json` 的 password 字面量在 v0 包内 **0 命中**，配置文件本身不在包内。
+- 下一步：接手人先读 `handoff/STATUS.md` §三；**用户只需把 `handoff/to-v0ai/` 或 PRIVATE 仓库地址交给 v0**；
+  v0 从 `00-从这里开始.md` → `01-任务清单.md` 批次 0 起步，操作人回贴 `probe.js` 实测后继续 A/B/C/D/E；
+  回收后按 `02-验收与回收.md` §四集成顺序执行，并更新本日志与 `STATUS.md`。
+- 备注：本轮由操作人「**都按建议做，记得更新 v0**」+《关键设计点》+《其他关键设计点》触发；
+  R4 9 条 + R5 追加 3 条**全部采纳**，并入本轮 `0.2.0`，不另升 `0.3.0`；
+  前端边界沿用约 90% 原版 UI + 新增联机组件（批次 D）+ 独立天道管理端（批次 E）；
+  `char_card_1-main/` 3109 文件一字未改；未部署、未公开、未生成公开链接、未上传 906MB 素材、未写入站长口令到任何外发物。
