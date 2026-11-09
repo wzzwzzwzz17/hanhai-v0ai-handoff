@@ -16,6 +16,7 @@ client/adapter/action-bridge.js
 client/adapter/snapshot-bridge.js
 client/adapter/boot.js
 client/adapter/probe.js
+client/adapter/ui/**       （R4 联机特有组件，已裁定）
 handoff/V0AI-DELIVERY.md   （回执）
 ```
 
@@ -25,11 +26,16 @@ handoff/V0AI-DELIVERY.md   （回执）
 
 - `contracts/**`（冻结契约）、`reference/**`（原版只读参考）、`client/adapter/generated/**`（豆包成果，已验收）；
 - 原版 `index.html`、`module/`、`ui/`、任何 CSS 与二进制素材；
-- 不产页面 / 组件 / 设计系统 / 整份 HTML / TypeScript / 构建配置。
+- 不重写原作页面 / 组件 / 设计系统，不产整份 HTML / TypeScript / 构建配置；**允许新增联机特有组件**（`client/adapter/ui/`）。
 
 ## 已就绪
 
 `window.HHAdapter.mock`（12 函数）、`i18n`（28 key）、`enums`（13 组）已在 `client/adapter/generated/`；`mock` 模式可直接用于离线开发。
+
+## 需求预告
+
+**前端边界已裁定**：沿用约 90% 原版 UI，`client/adapter/ui/**` 联机特有组件属于你的正式工作，见 `01-任务清单.md` 批次 D。
+`R4-需求增补-待裁定.md` 记录 9 条新需求；**契约仍是 `0.1.0`**，`0.2.0` 定稿前组件不得写死新字段名，数据用适配函数占位。批次 0–C 继续按原计划执行。
 
 ## 合规
 

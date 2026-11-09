@@ -9,9 +9,13 @@
 ## 一、从哪开始
 
 1. **`00-从这里开始.md` 是唯一入口**，先完整读它；
-2. `01-任务清单.md` —— 批次 0 探针 → A/B/C 三批，共 7 个原生 JS + 一行注入指令；
+2. `01-任务清单.md` —— 批次 0 探针 → A/B/C 三批适配层 + **批次 D 联机组件层**（R4 新增）；
 3. `02-验收与回收.md` —— 交付格式与 11 项验收判据；
 4. 完成后把回执写到 **`handoff/V0AI-DELIVERY.md`**（该目录已建好）。
+
+> 📌 **R4 前端边界已裁定（操作人 2026-11-09 17:10）**：沿用原版约 **90%** 的 UI，同时新增不少**联机版特有前端**，这是 v0 正式工作的一部分。
+> 新增组件只落 `client/adapter/ui/**`，见 `01-任务清单.md` 批次 D 与 `R4-需求增补-待裁定.md` §3。
+> ⚠️ `CONTRACT_VERSION` 仍为 `0.1.0`；契约升版与共同演出两点待裁定，**组件不得写死新字段名**，数据用适配函数占位。批次 0–C 继续按原计划执行。
 
 ## 二、目录说明
 
@@ -21,8 +25,10 @@
 | `contracts/`（6 份） | 冻结契约全文：`types.ts`、`api-v0.md`、`schema.sql`、`events.md`、`ui-states.md`、`README.md` | **禁止修改**，单一事实源 |
 | `reference/`（10 份） | 原版前端源码参考：完整 `index.html`、7 个核心 module、`index.html.diff`、`tweaks.css` | **只读参考** |
 | `client/adapter/generated/`（3 个 JS） | 豆包已交付并验收的 `mock.js` / `i18n-keys.js` / `enums.js` | **只读依赖** |
-| `client/adapter/*.js` | 你本次要写的 7 个文件 | **唯一允许写入区** |
+| `client/adapter/*.js` | 批次 0–C 的 7 个原生 JS | ✅ 允许写入 |
+| `client/adapter/ui/**` | 批次 D 联机特有组件（R4 已裁定） | ✅ 允许写入 |
 | `handoff/` | 回执落盘目录 | 只写 `V0AI-DELIVERY.md` |
+| `R4-需求增补-待裁定.md` | 9 条新需求与现状 / 冲突对照；前端边界已裁定 | **只读依据** |
 
 ## 三、已就绪的前置依赖
 
@@ -44,9 +50,9 @@ node --check client/adapter/generated/enums.js
 
 | 归你 | 归别人 / 禁止碰 |
 |---|---|
-| `client/adapter/config.js`、`transport.js`、`sse.js`、`action-bridge.js`、`snapshot-bridge.js`、`boot.js`、`probe.js` | `client/adapter/generated/**`（豆包）、`client/adapter/tweaks.css` 与 `client/index.html`（统筹）、`contracts/**`、`reference/**`、原版基座 `char_card_1-main/**` |
+| `client/adapter/config.js`、`transport.js`、`sse.js`、`action-bridge.js`、`snapshot-bridge.js`、`boot.js`、`probe.js`、**`client/adapter/ui/**`（批次 D）** | `client/adapter/generated/**`（豆包）、`client/adapter/tweaks.css` 与 `client/index.html`（统筹）、`contracts/**`、`reference/**`、原版基座 `char_card_1-main/**` |
 
-形态要求：原生 JS、IIFE、零构建、零框架、零 CDN、无 TypeScript、无 `package.json`；沿用原版 UI，不自造页面或设计系统。
+形态要求：原生 JS、IIFE、零构建、零框架、零 CDN、无 TypeScript、无 `package.json`；沿用约 90% 原版 UI，不自造页面或设计系统；新增联机组件只在 `client/adapter/ui/`，满足 F9 / U14。
 
 ## 五、合规与授权边界
 
