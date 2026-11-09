@@ -79,8 +79,9 @@
   - 需求对照：`docs/关键设计点-R4-需求对照.md`、`docs/其他关键设计点-对照.md`、`docs/0.2.0-变更清单.md`（§8）；
   - **v0 交付包**：`handoff/to-v0ai/{README.md, AGENTS.md, 00-从这里开始.md, 01-任务清单.md, 02-验收与回收.md, R4-需求增补-待裁定.md}` 全部重写为 R5 正式版；新增 `0.2.0-变更清单.md`、`其他关键设计点-对照.md`、`HANDOFF-LOG.md`；6 份契约副本 + 3 个 generated JS 已逐字同步；
   - `handoff/to-doubao/` 6 份契约副本 + 变更清单 + 日志已同步；
-  - **GitHub 私人仓库**：`wzzwzzwzz17/hanhai-v0ai-handoff` 提交 `41345ab0bc978c99dfc6dd7f9760ffb375242412`，
-    远端 ref 与本地 sha **完全一致**，`gh repo view` 实测 `visibility=PRIVATE` / `defaultBranch=main`，远端 tree **32 文件**；
+  - **GitHub 私人仓库**：`wzzwzzwzz17/hanhai-v0ai-handoff` 主提交 `41345ab0bc978c99dfc6dd7f9760ffb375242412`
+    （R5 全量），其后仅追加日志/索引同步类小提交；**远端 ref 与本地 sha 始终完全一致**，
+    最终 HEAD 见 `handoff/STATUS.md` §五/§七。`gh repo view` 实测 `visibility=PRIVATE` / `defaultBranch=main`，远端 tree **32 文件**；
     远端 `contracts/types.ts` = `0.2.0 / R5`、端点表 1–25 连续、`i18nAdmin` 12 key、`01-任务清单.md` 含批次 E、`HANDOFF-LOG.md` 存在。
 - 未完成：**W4 由 v0ai 交付**（7 个适配层 JS + 9 个批次 D 组件 + 7 个批次 E 天道文件 + 回执）；
   `AC-06…AC-11` 的完整实跑依赖 M1 PostgreSQL / 后端骨架；`client/index.html` 的 T3 boot 注入待 v0 回执后登记；
