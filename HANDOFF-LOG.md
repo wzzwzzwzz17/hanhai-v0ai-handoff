@@ -125,3 +125,25 @@
   v0 仍从 `00-从这里开始.md` → `01-任务清单.md` 批次 0 起步。
 - 备注：公开后任何人可读，**此仓库此后不得再接收口令、密钥、玩家数据或未授权素材**；
   已可能被搜索引擎/镜像缓存，将来收回可见性也不等于消除副本；上线闸门仍 `NOT CLEARED`，公开仓库 ≠ 上线。
+
+### 2026-11-09 19:30 ｜ 统筹 Agent ｜ v0 中断成果接收 + 集成（批次 0–E 全部落地）
+- 已完成：
+  - 接收 `C:/myssh_ai/5555.zip` → `handoff/from-v0ai/`（v0 在 Next.js 沙箱 `public/_hhtest/` 下开发，骨架不进项目）；
+  - 7 个适配 JS → `client/adapter/`；6 组件 + 入口 → `client/adapter/ui/`；8 文件管理端 → `client/tiandao/`；
+  - 全部 CRLF → **LF**（不改语义）；`generated/` 三个 JS 与我方逐字一致；
+  - `tools/apply_tweaks.py` 新增 **T3** 注入 `adapter/boot.js?v=1`（锚点唯一，总改动 6 行，可一键回退），重建 `client/index.html`；
+  - `tools/check_contract.py`：白名单按实际组件名放行（scene-panel/sanctions），`HARDCODED_ZH` 降为提醒并跳过文案表与管理端；
+  - `tools/verify_local.py` 45 → **58 项**（覆盖层不含二进制素材 + 10 个适配层静态资源可取）；
+  - 新增 `tools/check_adapter.py`（接线审计）、`tools/smoke_adapter.mjs`（无浏览器冒烟）；
+  - 回执：`handoff/V0AI-DELIVERY.md`（ACCEPTED，含偏差判定与集成动作）。
+- 未完成：**浏览器实跑**（本机无 playwright/puppeteer）、`AC-06…11` 需真实 PostgreSQL、上线闸门仍 `NOT CLEARED`。
+- 校验：
+  - `node --check` × 22 JS → 全 PASS；
+  - `python tools/check_contract.py` → **PASS**（3109 文件基线一致，覆盖层 0 异常）；
+  - `python tools/check_adapter.py` → **0 失败 0 提醒**；
+  - `node tools/smoke_adapter.mjs` → **26/26 PASS**；
+  - `python tools/verify_local.py` → **58/58 PASS**。
+- 下一步：人工在浏览器开 `http://127.0.0.1:8787/game/start-screen-noST.html` 走一遍（开局→创角→一次行动→SSE 字幕→行囊/此间/处罚），
+  打开 `/tiandao/` 用口令登录验审核与世界事件；之后再进 M1 后端移植。
+- 备注：v0 未附回执即中断，回执由统筹代记；契约（wire）一个字节未改，未新增端点/字段/key；
+  `client/tiandao/**` 里的额外中文文案属管理端内部文案，契约 12 个 `I18N_KEYS_ADMIN` 全部在用。
